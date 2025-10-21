@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Создать бронирование - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-calendar-plus"></i> Создать бронирование
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('bookings.create') }}">
+                    <!-- Информация о номере (если выбран) -->
+                    {% if room %}
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-door-open"></i> Выбранный номер</h5>
+                        <p class="mb-1"><strong>Номер:</strong> {{ room.number }}</p>
+                        <p class="mb-1"><strong>Тип:</strong> {{ room.get_type_display() }}</p>
+                        <p class="mb-0"><strong>Цена:</strong> {{ "%.2f"|format(room.price_per_night) }} ₽/ночь</p>
+                    </div>
+                    <input type="hidden" name="room_id" value="{{ room.id }}">
+                    {% else %}
+                    <div class="mb-3">
+                        <label for="room_id" class="form-label">Номер *</label>
+                        <input type="number" class="form-control" id="room_id" name="room_id" required>
+                        <div class="form-text">ID номера для бронирования</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Даты -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="check_in" class="form-label">Дата заезда *</label>
+                            <input type="date" class="form-control" id="check_in" name="check_in" 
+                                   value="{{ check_in }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="check_out" class="form-label">Дата выезда *</label>
+                            <input type="date" class="form-control" id="check_out" name="check_out" 
+                                   value="{{ check_out }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Информация о госте -->
+                    <h5 class="mt-4 mb-3">Информация о госте</h5>
+                    
+                    <div class="mb-3">
+                        <label for="guest_name" class="form-label">ФИО гостя *</label>
+                        <input type="text" class="form-control" id="guest_name" name="guest_name" 
+                               placeholder="Иванов Иван Иванович" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="guest_phone" class="form-label">Телефон *</label>
+                            <input type="tel" class="form-control" id="guest_phone" name="guest_phone" 
+                                   placeholder="+7 999 123-45-67" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="guest_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="guest_email" name="guest_email" 
+                                   placeholder="guest@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Дополнительно -->
+                    <div class="mb-3">
+                        <label for="special_requests" class="form-label">Особые пожелания</label>
+                        <textarea class="form-control" id="special_requests" name="special_requests" 
+                                  rows="3" placeholder="Например: ранний заезд, высокий этаж..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Создать бронирование
+                        </button>
+                        <a href="{{ url_for('bookings.search') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

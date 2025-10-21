@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Hotel Eleon System{% endblock %}
+
+{% block content %}
+<!-- Приветственный заголовок -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4">
+                    <i class="bi bi-building"></i> Hotel Eleon System
+                </h1>
+                <p class="lead mb-0">Система управления отелем</p>
+                <p class="mb-0">Модуль номеров и бронирования (Солянов А.А.)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <i class="bi bi-door-open fs-1 text-primary"></i>
+                <h3 class="mt-2">{{ total_rooms }}</h3>
+                <p class="text-muted mb-0">Всего номеров</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle fs-1 text-success"></i>
+                <h3 class="mt-2">{{ available_rooms }}</h3>
+                <p class="text-muted mb-0">Свободно</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check fs-1 text-info"></i>
+                <h3 class="mt-2">{{ active_bookings }}</h3>
+                <p class="text-muted mb-0">Активных броней</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <i class="bi bi-list-check fs-1 text-warning"></i>
+                <h3 class="mt-2">{{ total_bookings }}</h3>
+                <p class="text-muted mb-0">Всего броней</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Быстрые действия -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3><i class="bi bi-lightning-charge"></i> Быстрые действия</h3>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-search text-primary"></i> Поиск свободных номеров
+                </h5>
+                <p class="card-text">Найти доступные номера по датам и создать бронирование</p>
+                <a href="{{ url_for('bookings.search') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right"></i> Перейти
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-calendar3 text-success"></i> Календарь загруженности
+                </h5>
+                <p class="card-text">Просмотр занятости номеров на месяц</p>
+                <a href="{{ url_for('bookings.calendar') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right"></i> Перейти
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-door-open text-info"></i> Управление номерами
+                </h5>
+                <p class="card-text">Просмотр и редактирование номерного фонда</p>
+                <a href="{{ url_for('rooms.index') }}" class="btn btn-info">
+                    <i class="bi bi-arrow-right"></i> Перейти
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ближайшие заезды -->
+{% if upcoming_checkins %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> Ближайшие заезды (следующие 7 дней)
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Дата заезда</th>
+                                <th>Номер</th>
+                                <th>Гость</th>
+                                <th>Телефон</th>
+                                <th>Ночей</th>
+                                <th>Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in upcoming_checkins %}
+                            <tr>
+                                <td>
+                                    <i class="bi bi-calendar-event"></i>
+                                    {{ booking.check_in.strftime('%d.%m.%Y') }}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('rooms.detail', room_id=booking.room_id) }}">
+                                        {{ booking.room.number }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('bookings.detail', booking_id=booking.id) }}">
+                                        {{ booking.guest_name }}
+                                    </a>
+                                </td>
+                                <td>{{ booking.guest_phone }}</td>
+                                <td>{{ booking.get_nights_count() }}</td>
+                                <td><strong>{{ "%.2f"|format(booking.total_price) }} ₽</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

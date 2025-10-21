@@ -1,0 +1,46 @@
+/* Hotel Eleon System - Дополнительные стили */
+
+/* Анимации */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Плавные переходы для кнопок */
+.btn {
+    transition: all 0.3s ease;
+}
+
+/* Улучшенные статус-бейджи */
+.status-badge {
+    display: inline-block;
+    padding: 0.5em 0.8em;
+    border-radius: 0.5rem;
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+}
+
+/* Печать */
+@media print {
+    .navbar, .btn, footer {
+        display: none !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+    }
+}

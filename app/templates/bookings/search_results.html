@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты поиска - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2><i class="bi bi-check-circle"></i> Доступные номера</h2>
+        <p class="text-muted">
+            <i class="bi bi-calendar3"></i>
+            {{ check_in.strftime('%d.%m.%Y') }} - {{ check_out.strftime('%d.%m.%Y') }} ({{ nights }} ночей)
+        </p>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('bookings.search') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Изменить параметры
+        </a>
+    </div>
+</div>
+
+<!-- Результаты поиска -->
+<div class="row">
+    {% if rooms %}
+        {% for room in rooms %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-success">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Номер {{ room.number }}</h5>
+                        <span class="badge bg-light text-success">Свободен</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-primary">{{ room.get_type_display() }}</h6>
+                    <p class="card-text mb-2">
+                        <i class="bi bi-people"></i> Вместимость: {{ room.capacity }} чел.<br>
+                        <i class="bi bi-building"></i> Этаж: {{ room.floor }}
+                    </p>
+                    {% if room.description %}
+                    <p class="card-text text-muted small">{{ room.description }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Цена за ночь:</span>
+                            <span class="fw-bold">{{ "%.2f"|format(room.price_per_night) }} ₽</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span>Количество ночей:</span>
+                            <span class="fw-bold">{{ nights }}</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fs-5">Итого:</span>
+                            <span class="text-primary fw-bold fs-4">{{ "%.2f"|format(room.calculate_total_price(nights)) }} ₽</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('bookings.create', room_id=room.id, check_in=check_in.strftime('%Y-%m-%d'), check_out=check_out.strftime('%Y-%m-%d')) }}" 
+                       class="btn btn-success w-100">
+                        <i class="bi bi-calendar-plus"></i> Забронировать
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h5 class="mt-3">К сожалению, на выбранные даты свободных номеров не найдено</h5>
+                <p class="mb-3">Попробуйте изменить даты или параметры поиска</p>
+                <a href="{{ url_for('bookings.search') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Вернуться к поиску
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

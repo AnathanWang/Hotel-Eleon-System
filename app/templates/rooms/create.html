@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{% if room %}Редактировать{% else %}Создать{% endif %} номер - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Создать новый номер
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('rooms.create') }}">
+                    <div class="mb-3">
+                        <label for="number" class="form-label">Номер комнаты *</label>
+                        <input type="text" class="form-control" id="number" name="number" 
+                               placeholder="101" required>
+                        <div class="form-text">Уникальный номер комнаты (например: 101, 201)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="room_type" class="form-label">Тип номера *</label>
+                        <select class="form-select" id="room_type" name="room_type" required>
+                            {% for room_type in room_types %}
+                            <option value="{{ room_type.code }}">
+                                {{ room_type.display_name }} - {{ room_type.base_price }} ₽/ночь
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Цена устанавливается автоматически в зависимости от типа</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="floor" class="form-label">Этаж *</label>
+                            <input type="number" class="form-control" id="floor" name="floor" 
+                                   min="1" max="20" value="1" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="capacity" class="form-label">Вместимость (человек) *</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" 
+                                   min="1" max="10" value="2" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="3" placeholder="Краткое описание номера (необязательно)"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Создать номер
+                        </button>
+                        <a href="{{ url_for('rooms.index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Бронирование #{{ booking.id }} - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-8">
+        <h2><i class="bi bi-calendar-check"></i> Бронирование #{{ booking.id }}</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if booking.status == 'pending' %}
+        <form method="POST" action="{{ url_for('bookings.confirm', booking_id=booking.id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Подтвердить
+            </button>
+        </form>
+        {% elif booking.status == 'confirmed' %}
+        <form method="POST" action="{{ url_for('bookings.checkin', booking_id=booking.id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Заселить
+            </button>
+        </form>
+        {% elif booking.status == 'checked_in' %}
+        <form method="POST" action="{{ url_for('bookings.checkout', booking_id=booking.id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-info">
+                <i class="bi bi-box-arrow-right"></i> Выселить
+            </button>
+        </form>
+        {% endif %}
+        
+        {% if booking.status not in ['checked_out', 'cancelled'] %}
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+            <i class="bi bi-x-circle"></i> Отменить
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <!-- Информация о бронировании -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Информация о бронировании</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th style="width: 40%">Номер бронирования:</th>
+                            <td><strong>#{{ booking.id }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Номер комнаты:</th>
+                            <td>
+                                <a href="{{ url_for('rooms.detail', room_id=booking.room_id) }}">
+                                    {{ booking.room.number }}
+                                </a>
+                                ({{ booking.room.get_type_display() }})
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Дата заезда:</th>
+                            <td>{{ booking.check_in.strftime('%d.%m.%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата выезда:</th>
+                            <td>{{ booking.check_out.strftime('%d.%m.%Y') }}</td>
+                        </tr>
+                        <tr>
+                            <th>Количество ночей:</th>
+                            <td><strong>{{ booking.get_nights_count() }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Общая стоимость:</th>
+                            <td><span class="text-primary fw-bold fs-5">{{ "%.2f"|format(booking.total_price) }} ₽</span></td>
+                        </tr>
+                        <tr>
+                            <th>Статус:</th>
+                            <td>
+                                {% if booking.status == 'pending' %}
+                                <span class="badge bg-warning">В ожидании</span>
+                                {% elif booking.status == 'confirmed' %}
+                                <span class="badge bg-success">Подтверждено</span>
+                                {% elif booking.status == 'checked_in' %}
+                                <span class="badge bg-primary">Заселен</span>
+                                {% elif booking.status == 'checked_out' %}
+                                <span class="badge bg-secondary">Выселен</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger">Отменено</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Создано:</th>
+                            <td>{{ booking.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о госте -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-person"></i> Информация о госте</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th style="width: 40%">ФИО:</th>
+                            <td><strong>{{ booking.guest_name }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Телефон:</th>
+                            <td><a href="tel:{{ booking.guest_phone }}">{{ booking.guest_phone }}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>
+                                {% if booking.guest_email %}
+                                <a href="mailto:{{ booking.guest_email }}">{{ booking.guest_email }}</a>
+                                {% else %}
+                                <span class="text-muted">Не указан</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                {% if booking.special_requests %}
+                <hr>
+                <div>
+                    <strong>Особые пожелания:</strong>
+                    <p class="mb-0 mt-2">{{ booking.special_requests }}</p>
+                </div>
+                {% endif %}
+
+                {% if booking.notes %}
+                <hr>
+                <div>
+                    <strong>Заметки:</strong>
+                    <p class="mb-0 mt-2">{{ booking.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно отмены -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение отмены</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите отменить бронирование #{{ booking.id }}?</p>
+                <p class="mb-0"><strong>Гость:</strong> {{ booking.guest_name }}</p>
+                <p class="mb-0"><strong>Даты:</strong> {{ booking.check_in.strftime('%d.%m.%Y') }} - {{ booking.check_out.strftime('%d.%m.%Y') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Назад</button>
+                <form method="POST" action="{{ url_for('bookings.cancel', booking_id=booking.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Отменить бронирование</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

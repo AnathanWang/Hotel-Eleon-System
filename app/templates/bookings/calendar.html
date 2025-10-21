@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Календарь загруженности - Hotel Eleon{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-table {
+        font-size: 0.85rem;
+    }
+    .calendar-table th {
+        min-width: 30px;
+        padding: 0.25rem;
+        text-align: center;
+        font-size: 0.75rem;
+    }
+    .calendar-table td {
+        min-width: 30px;
+        padding: 0.25rem;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+    .room-number {
+        font-weight: bold;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+    .day-free {
+        background-color: #d1e7dd;
+        cursor: pointer;
+    }
+    .day-occupied {
+        background-color: #f8d7da;
+        cursor: pointer;
+    }
+    .day-occupied:hover {
+        opacity: 0.8;
+    }
+    .weekend {
+        background-color: #fff3cd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2><i class="bi bi-calendar3"></i> Календарь загруженности</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('bookings.calendar', year=prev_year, month=prev_month) }}" class="btn btn-outline-primary">
+                <i class="bi bi-chevron-left"></i> Предыдущий
+            </a>
+            <button class="btn btn-primary" disabled>
+                {% set month_names = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                                     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'] %}
+                {{ month_names[current_month - 1] }} {{ current_year }}
+            </button>
+            <a href="{{ url_for('bookings.calendar', year=next_year, month=next_month) }}" class="btn btn-outline-primary">
+                Следующий <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Легенда -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <div class="d-flex gap-4 align-items-center">
+                    <span><strong>Легенда:</strong></span>
+                    <span><span class="badge day-free">&nbsp;&nbsp;&nbsp;</span> Свободен</span>
+                    <span><span class="badge day-occupied">&nbsp;&nbsp;&nbsp;</span> Занят</span>
+                    <span><span class="badge weekend">&nbsp;&nbsp;&nbsp;</span> Выходные</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Календарь -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered calendar-table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="room-number">Номер</th>
+                        {% for day in days %}
+                        <th class="{% if day.weekday() >= 5 %}weekend{% endif %}">
+                            {{ day.day }}<br>
+                            <small>{{ ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][day.weekday()] }}</small>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td class="room-number">
+                            <a href="{{ url_for('rooms.detail', room_id=room.id) }}">
+                                {{ room.number }}
+                            </a>
+                        </td>
+                        {% for day in days %}
+                        {% set booking = occupancy_matrix[room.id].get(day) %}
+                        <td class="{% if booking %}day-occupied{% else %}day-free{% endif %} {% if day.weekday() >= 5 %}weekend{% endif %}"
+                            {% if booking %}
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            title="{{ booking.guest_name }} ({{ booking.check_in.strftime('%d.%m') }} - {{ booking.check_out.strftime('%d.%m') }})"
+                            onclick="window.location.href='{{ url_for('bookings.detail', booking_id=booking.id) }}'"
+                            {% endif %}>
+                            {% if booking %}
+                            <i class="bi bi-person-fill text-danger"></i>
+                            {% else %}
+                            <i class="bi bi-check text-success"></i>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ rooms|length }}</h3>
+                <p class="mb-0">Всего номеров</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="text-success">{{ days|length }}</h3>
+                <p class="mb-0">Дней в месяце</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% set total_days = rooms|length * days|length %}
+                {% set occupied_days = occupancy_matrix.values()|sum(attribute='values')|length %}
+                {% set occupancy_rate = (occupied_days / total_days * 100) if total_days > 0 else 0 %}
+                <h3 class="text-info">{{ "%.1f"|format(occupancy_rate) }}%</h3>
+                <p class="mb-0">Загруженность</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Инициализация подсказок Bootstrap
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+});
+</script>
+{% endblock %}

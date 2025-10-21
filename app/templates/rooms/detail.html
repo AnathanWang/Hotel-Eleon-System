@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Номер {{ room.number }} - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h2><i class="bi bi-door-open"></i> Номер {{ room.number }}</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="{{ url_for('rooms.edit', room_id=room.id) }}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+    </div>
+</div>
+
+<!-- Информация о номере -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header {% if room.is_available %}bg-success{% else %}bg-secondary{% endif %} text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> Информация о номере
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <th width="40%">Номер:</th>
+                            <td><strong>{{ room.number }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Тип номера:</th>
+                            <td>{{ room.get_type_display() }}</td>
+                        </tr>
+                        <tr>
+                            <th>Этаж:</th>
+                            <td>{{ room.floor }}</td>
+                        </tr>
+                        <tr>
+                            <th>Вместимость:</th>
+                            <td>{{ room.capacity }} чел.</td>
+                        </tr>
+                        <tr>
+                            <th>Цена за ночь:</th>
+                            <td><span class="text-primary fw-bold fs-5">{{ "%.2f"|format(room.price_per_night) }} ₽</span></td>
+                        </tr>
+                        <tr>
+                            <th>Статус:</th>
+                            <td>
+                                {% if room.is_available %}
+                                <span class="badge bg-success">Доступен</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Недоступен</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% if room.description %}
+                <hr>
+                <p class="mb-0"><strong>Описание:</strong><br>{{ room.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Активные бронирования -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-check"></i> Активные бронирования
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if active_bookings %}
+                <div class="list-group">
+                    {% for booking in active_bookings %}
+                    <a href="{{ url_for('bookings.detail', booking_id=booking.id) }}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ booking.guest_name }}</h6>
+                            <small>
+                                {% if booking.status == 'pending' %}
+                                <span class="badge bg-warning">Ожидание</span>
+                                {% elif booking.status == 'confirmed' %}
+                                <span class="badge bg-success">Подтверждено</span>
+                                {% elif booking.status == 'checked_in' %}
+                                <span class="badge bg-primary">Заселен</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <p class="mb-1">
+                            <i class="bi bi-calendar3"></i>
+                            {{ booking.check_in.strftime('%d.%m.%Y') }} - {{ booking.check_out.strftime('%d.%m.%Y') }}
+                        </p>
+                        <small class="text-muted">
+                            {{ booking.get_nights_count() }} ночей | {{ "%.2f"|format(booking.total_price) }} ₽
+                        </small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">
+                    <i class="bi bi-calendar-x"></i> Нет активных бронирований
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить номер <strong>{{ room.number }}</strong>?</p>
+                <p class="text-danger mb-0">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Это действие также удалит все связанные бронирования!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="POST" action="{{ url_for('rooms.delete', room_id=room.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
