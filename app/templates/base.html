@@ -68,10 +68,27 @@
                             <li><a class="dropdown-item" href="{{ url_for('bookings.calendar') }}">Календарь загруженности</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-people"></i> Персонал
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('staff.index') }}">Все сотрудники</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('staff.create') }}">Добавить сотрудника</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('staff.report') }}">Отчёты менеджеров</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-receipt"></i> Биллинг
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('billing.index') }}">Все счета</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('billing.create') }}">Создать счёт</a></li>
+                        </ul>
+                    </li>
                 </ul>
-                <span class="navbar-text">
-                    <i class="bi bi-person-circle"></i> Модуль Солянова А.А.
-                </span>
             </div>
         </div>
     </nav>

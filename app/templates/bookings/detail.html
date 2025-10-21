@@ -146,6 +146,15 @@
                     <p class="mb-0 mt-2">{{ booking.notes }}</p>
                 </div>
                 {% endif %}
+                
+                <!-- Кнопка создания счёта -->
+                <hr>
+                <div class="d-grid">
+                    <a href="{{ url_for('billing.from_booking', booking_id=booking.id) }}" 
+                       class="btn btn-success">
+                        <i class="bi bi-receipt"></i> Создать счёт для гостя
+                    </a>
+                </div>
             </div>
         </div>
     </div>

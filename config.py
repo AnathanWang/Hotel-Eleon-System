@@ -24,6 +24,11 @@ class Config:
     # Формат даты
     DATE_FORMAT = '%d.%m.%Y'
     DATETIME_FORMAT = '%d.%m.%Y %H:%M'
+    
+    # Настройки биллинга
+    TAX_PERCENT = 10.0  # НДС 10%
+    CURRENCY = 'руб.'
+    CURRENCY_CODE = 'RUB'
 
 
 class DevelopmentConfig(Config):

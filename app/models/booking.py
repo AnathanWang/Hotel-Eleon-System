@@ -75,7 +75,7 @@ class Booking(db.Model):
         self.check_out = check_out
         self.special_requests = special_requests
         self.notes = notes
-        self.status = BookingStatus.PENDING.value
+        self.status = BookingStatus.PENDING.code
         
         # Автоматический расчет общей стоимости
         self._calculate_total_price()
@@ -100,38 +100,38 @@ class Booking(db.Model):
     def get_status_display(self):
         """Получить отображаемое название статуса"""
         for status in BookingStatus:
-            if status.value == self.status:
+            if status.code == self.status:
                 return status.display_name
         return self.status
     
     def confirm(self):
         """Подтвердить бронирование"""
-        if self.status == BookingStatus.PENDING.value:
-            self.status = BookingStatus.CONFIRMED.value
+        if self.status == BookingStatus.PENDING.code:
+            self.status = BookingStatus.CONFIRMED.code
             self.updated_at = datetime.utcnow()
             return True
         return False
     
     def check_in_guest(self):
         """Заселить гостя"""
-        if self.status == BookingStatus.CONFIRMED.value:
-            self.status = BookingStatus.CHECKED_IN.value
+        if self.status == BookingStatus.CONFIRMED.code:
+            self.status = BookingStatus.CHECKED_IN.code
             self.updated_at = datetime.utcnow()
             return True
         return False
     
     def check_out_guest(self):
         """Выселить гостя"""
-        if self.status == BookingStatus.CHECKED_IN.value:
-            self.status = BookingStatus.CHECKED_OUT.value
+        if self.status == BookingStatus.CHECKED_IN.code:
+            self.status = BookingStatus.CHECKED_OUT.code
             self.updated_at = datetime.utcnow()
             return True
         return False
     
     def cancel(self):
         """Отменить бронирование"""
-        if self.status not in [BookingStatus.CHECKED_OUT.value, BookingStatus.CANCELLED.value]:
-            self.status = BookingStatus.CANCELLED.value
+        if self.status not in [BookingStatus.CHECKED_OUT.code, BookingStatus.CANCELLED.code]:
+            self.status = BookingStatus.CANCELLED.code
             self.updated_at = datetime.utcnow()
             return True
         return False

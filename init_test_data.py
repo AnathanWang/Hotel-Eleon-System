@@ -1,85 +1,46 @@
 """
-Главное приложение Hotel Eleon System
-Точка входа в систему управления отелем
+Скрипт инициализации тестовых данных
 """
+import sys
 import os
+
+# Добавляем путь к проекту
+sys.path.insert(0, os.path.dirname(__file__))
+
 from app import create_app, db
-from app.models import (Room, RoomType, Booking, BookingStatus,
-                        Staff, Manager, Receptionist, StaffRole,
-                        Bill, Payment, BillStatus, PaymentMethod)
+from app.models import *
 from datetime import date, timedelta
 
-# Создаем приложение
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+app = create_app()
 
-
-@app.route('/')
-def index():
-    """Главная страница системы"""
-    from flask import render_template
-    
-    # Статистика для главной страницы
-    total_rooms = Room.query.count()
-    available_rooms = Room.query.filter_by(is_available=True).count()
-    total_bookings = Booking.query.count()
-    
-    # Активные бронирования (сегодня и в будущем)
-    today = date.today()
-    active_bookings = Booking.query.filter(
-        Booking.status.in_([
-            BookingStatus.CONFIRMED.code,
-            BookingStatus.CHECKED_IN.code
-        ]),
-        Booking.check_out >= today
-    ).count()
-    
-    # Ближайшие заезды
-    upcoming_checkins = Booking.query.filter(
-        Booking.status == BookingStatus.CONFIRMED.code,
-        Booking.check_in >= today,
-        Booking.check_in <= today + timedelta(days=7)
-    ).order_by(Booking.check_in).limit(5).all()
-    
-    return render_template('index.html',
-                         total_rooms=total_rooms,
-                         available_rooms=available_rooms,
-                         total_bookings=total_bookings,
-                         active_bookings=active_bookings,
-                         upcoming_checkins=upcoming_checkins)
-
-
-@app.cli.command()
-def init_db():
-    """Инициализация базы данных с тестовыми данными"""
-    print('Создание таблиц базы данных...')
-    db.create_all()
-    
+with app.app_context():
     # Проверяем, есть ли уже данные
     if Room.query.first():
-        print('База данных уже содержит данные!')
-        return
+        print('База данных уже содержит данные! Очистка...')
+        db.drop_all()
+        db.create_all()
     
     print('Добавление тестовых номеров...')
     
     # Создаем номера
     rooms_data = [
         # Стандарт
-        ('101', RoomType.STANDARD.code, 1, 2, 'Стандартный номер с двуспальной кроватью'),
-        ('102', RoomType.STANDARD.code, 1, 2, 'Стандартный номер с двумя односпальными кроватями'),
-        ('103', RoomType.STANDARD.code, 1, 2, 'Стандартный номер с видом на парк'),
+        ('101', 'standard', 1, 2, 'Стандартный номер с двуспальной кроватью'),
+        ('102', 'standard', 1, 2, 'Стандартный номер с двумя односпальными кроватями'),
+        ('103', 'standard', 1, 2, 'Стандартный номер с видом на парк'),
         
         # Делюкс
-        ('201', RoomType.DELUXE.code, 2, 2, 'Делюкс с балконом и видом на город'),
-        ('202', RoomType.DELUXE.code, 2, 2, 'Делюкс с джакузи'),
-        ('203', RoomType.DELUXE.code, 2, 3, 'Делюкс с дополнительным диваном'),
+        ('201', 'deluxe', 2, 2, 'Делюкс с балконом и видом на город'),
+        ('202', 'deluxe', 2, 2, 'Делюкс с джакузи'),
+        ('203', 'deluxe', 2, 3, 'Делюкс с дополнительным диваном'),
         
         # Люкс
-        ('301', RoomType.SUITE.code, 3, 3, 'Люкс с гостиной и спальней'),
-        ('302', RoomType.SUITE.code, 3, 4, 'Президентский люкс с панорамным видом'),
+        ('301', 'suite', 3, 3, 'Люкс с гостиной и спальней'),
+        ('302', 'suite', 3, 4, 'Президентский люкс с панорамным видом'),
         
         # Семейный
-        ('401', RoomType.FAMILY.code, 4, 4, 'Семейный номер с двумя спальнями'),
-        ('402', RoomType.FAMILY.code, 4, 5, 'Семейный номер с детской комнатой'),
+        ('401', 'family', 4, 4, 'Семейный номер с двумя спальнями'),
+        ('402', 'family', 4, 5, 'Семейный номер с детской комнатой'),
     ]
     
     for room_data in rooms_data:
@@ -161,7 +122,7 @@ def init_db():
     db.session.add(staff1)
     
     db.session.commit()
-    print(f'Добавлено {4} сотрудника')
+    print(f'Добавлено 4 сотрудника')
     
     # Создаем тестовый счёт
     print('Создание тестового счёта...')
@@ -177,6 +138,9 @@ def init_db():
             auto_from_booking=True
         )
         
+        # Сохраняем счёт чтобы получить ID
+        db.session.commit()
+        
         # Добавляем частичную оплату
         payment = receptionist1.record_payment(
             bill,
@@ -190,17 +154,3 @@ def init_db():
         print(f'Тестовый счёт создан: {bill.total} руб., оплачено: {bill.paid_amount} руб.')
     
     print('База данных инициализирована успешно!')
-
-
-@app.cli.command()
-def clear_db():
-    """Очистка базы данных"""
-    if input('Вы уверены? Все данные будут удалены (yes/no): ') == 'yes':
-        db.drop_all()
-        print('База данных очищена!')
-    else:
-        print('Отменено')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

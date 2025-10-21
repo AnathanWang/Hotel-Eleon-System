@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Отчёт - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Финансовый отчёт</h2>
+    <p class="text-muted">Менеджер: {{ manager.full_name() }}</p>
+    <p class="text-muted">Период: {{ report.period.start }} - {{ report.period.end }}</p>
+
+    <div class="row mt-4">
+        <!-- Биллинг -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>Биллинг и платежи</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Всего счетов:</th>
+                            <td>{{ report.billing.total_bills }}</td>
+                        </tr>
+                        <tr>
+                            <th>Оплачено:</th>
+                            <td>{{ report.billing.paid_bills }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ожидает оплаты:</th>
+                            <td>{{ report.billing.pending_bills }}</td>
+                        </tr>
+                        <tr>
+                            <th>Общая выручка:</th>
+                            <td><strong>{{ "%.2f"|format(report.billing.total_revenue) }} руб.</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Всего платежей:</th>
+                            <td>{{ report.billing.total_payments }}</td>
+                        </tr>
+                        <tr>
+                            <th>Сумма платежей:</th>
+                            <td><strong>{{ "%.2f"|format(report.billing.total_payment_amount) }} руб.</strong></td>
+                        </tr>
+                    </table>
+
+                    <h6 class="mt-3">Методы оплаты:</h6>
+                    <ul>
+                        {% for method, amount in report.billing.payment_methods.items() %}
+                        <li>{{ method }}: {{ "%.2f"|format(amount) }} руб.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Бронирования -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5>Бронирования</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th>Всего бронирований:</th>
+                            <td>{{ report.bookings.total }}</td>
+                        </tr>
+                        <tr>
+                            <th>Подтверждено:</th>
+                            <td>{{ report.bookings.confirmed }}</td>
+                        </tr>
+                        <tr>
+                            <th>Заселено:</th>
+                            <td>{{ report.bookings.checked_in }}</td>
+                        </tr>
+                        <tr>
+                            <th>Выселено:</th>
+                            <td>{{ report.bookings.checked_out }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a href="{{ url_for('staff.report') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Назад
+        </a>
+    </div>
+</div>
+{% endblock %}

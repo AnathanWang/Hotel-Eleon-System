@@ -117,9 +117,9 @@ def detail(room_id):
     from app.models.booking import BookingStatus
     active_bookings = room.bookings.filter(
         Booking.status.in_([
-            BookingStatus.PENDING.value,
-            BookingStatus.CONFIRMED.value,
-            BookingStatus.CHECKED_IN.value
+            BookingStatus.PENDING.code,
+            BookingStatus.CONFIRMED.code,
+            BookingStatus.CHECKED_IN.code
         ])
     ).order_by(Booking.check_in).all()
     
