@@ -16,10 +16,12 @@ def create_app(config_name='default'):
     
     # Регистрация blueprint'ов
     with app.app_context():
-        from app.modules import rooms, bookings
+        from app.modules import rooms, bookings, staff, billing
         
         app.register_blueprint(rooms.bp)
         app.register_blueprint(bookings.bp)
+        app.register_blueprint(staff.bp)
+        app.register_blueprint(billing.bp)
         
         # Создание таблиц базы данных
         db.create_all()

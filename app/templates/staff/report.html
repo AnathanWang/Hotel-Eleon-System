@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Генерация отчёта - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Генерация отчёта</h2>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="manager_id" class="form-label">Менеджер *</label>
+                    <select class="form-select" id="manager_id" name="manager_id" required>
+                        {% for manager in managers %}
+                        <option value="{{ manager.id }}">{{ manager.full_name() }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="start_date" class="form-label">Начало периода *</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="end_date" class="form-label">Конец периода *</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> Сгенерировать отчёт
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

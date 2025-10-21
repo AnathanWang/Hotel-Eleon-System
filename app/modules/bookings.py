@@ -311,8 +311,8 @@ def calendar():
     bookings = Booking.query.filter(
         and_(
             Booking.status.in_([
-                BookingStatus.CONFIRMED.value,
-                BookingStatus.CHECKED_IN.value
+                BookingStatus.CONFIRMED.code,
+                BookingStatus.CHECKED_IN.code
             ]),
             or_(
                 and_(Booking.check_in <= last_day, Booking.check_out > first_day)
