@@ -17,7 +17,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="check_in" class="form-label">Дата заезда *</label>
                             <input type="date" class="form-control" id="check_in" name="check_in" 
-                                   min="{{ (now() + timedelta(days=0)).strftime('%Y-%m-%d') }}" required>
+                                   min="{{ today.strftime('%Y-%m-%d') }}" required>
                         </div>
 
                         <div class="col-md-6 mb-3">

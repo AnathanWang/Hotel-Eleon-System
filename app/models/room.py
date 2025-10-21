@@ -4,6 +4,7 @@
 """
 from enum import Enum
 from app import db
+from app.models.booking import Booking, BookingStatus
 
 
 class RoomType(Enum):
@@ -81,7 +82,6 @@ class Room(db.Model):
         Returns:
             bool: True если номер свободен
         """
-        from app.models.booking import BookingStatus
         
         overlapping_bookings = self.bookings.filter(
             db.and_(

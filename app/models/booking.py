@@ -10,15 +10,23 @@ from sqlalchemy.orm import relationship
 
 class BookingStatus(Enum):
     """Статусы бронирования"""
-    PENDING = ('pending', 'В ожидании')
-    CONFIRMED = ('confirmed', 'Подтверждено')
-    CHECKED_IN = ('checked_in', 'Заселен')
-    CHECKED_OUT = ('checked_out', 'Выселен')
-    CANCELLED = ('cancelled', 'Отменено')
+    PENDING = 'pending'
+    CONFIRMED = 'confirmed'
+    CHECKED_IN = 'checked_in'
+    CHECKED_OUT = 'checked_out'
+    CANCELLED = 'cancelled'
     
-    def __init__(self, code, name):
-        self.code = code
-        self.display_name = name
+    @property
+    def display_name(self):
+        """Получить отображаемое название"""
+        names = {
+            'pending': 'В ожидании',
+            'confirmed': 'Подтверждено',
+            'checked_in': 'Заселен',
+            'checked_out': 'Выселен',
+            'cancelled': 'Отменено'
+        }
+        return names.get(self.value, self.value)
 
 
 class Booking(db.Model):

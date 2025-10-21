@@ -87,7 +87,9 @@ def search():
             return redirect(url_for('bookings.search'))
     
     # GET запрос - показываем форму поиска
-    return render_template('bookings/search.html', room_types=RoomType)
+    return render_template('bookings/search.html', 
+                         room_types=RoomType,
+                         today=date.today())
 
 
 def find_available_rooms(check_in, check_out, room_type='', min_capacity=0):
@@ -351,6 +353,11 @@ def calendar():
     next_month = month + 1 if month < 12 else 1
     next_year = year if month < 12 else year + 1
     
+    # Подсчет статистики
+    total_days = len(rooms) * len(days)
+    occupied_days = sum(len(room_days) for room_days in occupancy_matrix.values())
+    occupancy_rate = (occupied_days / total_days * 100) if total_days > 0 else 0
+    
     return render_template('bookings/calendar.html',
                          rooms=rooms,
                          days=days,
@@ -360,4 +367,5 @@ def calendar():
                          prev_month=prev_month,
                          prev_year=prev_year,
                          next_month=next_month,
-                         next_year=next_year)
+                         next_year=next_year,
+                         occupancy_rate=occupancy_rate)
