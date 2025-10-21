@@ -3,8 +3,8 @@
 Автор модуля: Солянов А.А.
 """
 from enum import Enum
+
 from app import db
-from app.models.booking import Booking, BookingStatus
 
 
 class RoomType(Enum):
@@ -83,6 +83,9 @@ class Room(db.Model):
             bool: True если номер свободен
         """
         
+        # Локальный импорт разрывает циклическую зависимость между модулями room и booking
+        from app.models.booking import Booking, BookingStatus
+
         overlapping_bookings = self.bookings.filter(
             db.and_(
                 Booking.status.in_([BookingStatus.CONFIRMED.code, BookingStatus.CHECKED_IN.code]),

@@ -3,9 +3,14 @@
 Автор модуля: Солянов А.А.
 """
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 from sqlalchemy.orm import relationship
+
+
+def utcnow():
+    """Возвращает время в UTC для БД"""
+    return datetime.now(timezone.utc)
 
 
 class BookingStatus(Enum):
@@ -16,6 +21,11 @@ class BookingStatus(Enum):
     CHECKED_OUT = 'checked_out'
     CANCELLED = 'cancelled'
     
+    @property
+    def code(self):
+        """Совместимость с кодом, используемым по всему проекту"""
+        return self.value
+
     @property
     def display_name(self):
         """Получить отображаемое название"""
@@ -66,8 +76,8 @@ class Booking(db.Model):
     notes = db.Column(db.Text)
     
     # Временные метки
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utcnow)
+    updated_at = db.Column(db.DateTime, default=utcnow, onupdate=utcnow)
 
     guest = relationship("Guest", back_populates="bookings")
     visit = relationship("GuestVisit", back_populates="booking", uselist=False)
@@ -95,6 +105,9 @@ class Booking(db.Model):
             nights = 1
         
         # Получаем цену номера
+        # Локальный импорт разрывает циклическую зависимость с модулем Room
+        from app.models.room import Room
+
         room = db.session.get(Room, self.room_id)
         if room:
             self.total_price = room.price_per_night * nights
@@ -116,7 +129,7 @@ class Booking(db.Model):
         """Подтвердить бронирование"""
         if self.status == BookingStatus.PENDING.code:
             self.status = BookingStatus.CONFIRMED.code
-            self.updated_at = datetime.utcnow()
+            self.updated_at = utcnow()
             return True
         return False
     
@@ -124,7 +137,7 @@ class Booking(db.Model):
         """Заселить гостя"""
         if self.status == BookingStatus.CONFIRMED.code:
             self.status = BookingStatus.CHECKED_IN.code
-            self.updated_at = datetime.utcnow()
+            self.updated_at = utcnow()
             return True
         return False
     
@@ -132,7 +145,7 @@ class Booking(db.Model):
         """Выселить гостя"""
         if self.status == BookingStatus.CHECKED_IN.code:
             self.status = BookingStatus.CHECKED_OUT.code
-            self.updated_at = datetime.utcnow()
+            self.updated_at = utcnow()
             return True
         return False
     
@@ -140,7 +153,7 @@ class Booking(db.Model):
         """Отменить бронирование"""
         if self.status not in [BookingStatus.CHECKED_OUT.code, BookingStatus.CANCELLED.code]:
             self.status = BookingStatus.CANCELLED.code
-            self.updated_at = datetime.utcnow()
+            self.updated_at = utcnow()
             return True
         return False
     
@@ -178,6 +191,3 @@ class Booking(db.Model):
     def __repr__(self):
         return f'<Booking {self.id}: {self.guest_name} ({self.check_in} - {self.check_out})>'
 
-
-# Импорт Room для использования в Booking
-from app.models.room import Room

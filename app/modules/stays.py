@@ -1,13 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Blueprint, jsonify, abort
 from app import db  # type: ignore
-from app.models.guests import Guest, GuestVisit
-from app.models.service import ServiceOrder
+from app.models.guests import GuestVisit
 from app.models.booking import Booking  # предполагаем, что модель уже есть
 
-stays_bp = Blueprint("stays", __name__, url_prefix="/stays")
+bp = Blueprint("stays", __name__, url_prefix="/stays")
 
-@stays_bp.post("/checkin/<int:booking_id>")
+@bp.post("/checkin/<int:booking_id>")
 def checkin(booking_id: int):
     """
     Заселение гостя по брони:
@@ -34,7 +33,7 @@ def checkin(booking_id: int):
         guest_id=booking.guest_id,
         booking_id=booking.id,
         room_id=booking.room_id,
-        checkin_at=datetime.utcnow(),
+        checkin_at=datetime.now(timezone.utc),
         base_amount=base_amount,
     )
     db.session.add(visit)
@@ -49,7 +48,7 @@ def checkin(booking_id: int):
         "status": booking.status
     })
 
-@stays_bp.post("/checkout/<int:booking_id>")
+@bp.post("/checkout/<int:booking_id>")
 def checkout(booking_id: int):
     """
     Выселение гостя:
@@ -70,7 +69,7 @@ def checkout(booking_id: int):
 
     # Пересчёт итогов (услуги уже должны быть в статусе completed)
     visit.recalc_totals()
-    visit.checkout_at = datetime.utcnow()
+    visit.checkout_at = datetime.now(timezone.utc)
 
     booking.status = "checked_out"
     db.session.commit()
