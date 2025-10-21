@@ -5,6 +5,7 @@
 from enum import Enum
 from datetime import datetime
 from app import db
+from sqlalchemy.orm import relationship
 
 
 class BookingStatus(Enum):
@@ -39,6 +40,8 @@ class Booking(db.Model):
     guest_name = db.Column(db.String(100), nullable=False)
     guest_phone = db.Column(db.String(20), nullable=False)
     guest_email = db.Column(db.String(100))
+
+    guest_id = db.Column(db.Integer, db.ForeignKey("guests.id", ondelete="SET NULL"), nullable=True, index=True)
     
     # Даты бронирования
     check_in = db.Column(db.Date, nullable=False, index=True)
@@ -57,6 +60,9 @@ class Booking(db.Model):
     # Временные метки
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    guest = relationship("Guest", back_populates="bookings")
+    visit = relationship("GuestVisit", back_populates="booking", uselist=False)
     
     def __init__(self, room_id, guest_name, guest_phone, check_in, check_out,
                  guest_email='', special_requests='', notes=''):
@@ -148,6 +154,18 @@ class Booking(db.Model):
             'special_requests': self.special_requests,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S')
         }
+    
+    def can_checkin(self) -> bool:
+        # Разрешаем заселение только из confirmed и в пределах дат
+        if self.status != "confirmed":
+            return False
+        # Предполагаем, что есть поля start_date/end_date
+        from datetime import date
+        return self.start_date is not None and date.today() >= self.start_date
+
+    def can_checkout(self) -> bool:
+        # Выселение — только если уже заселён
+        return self.status == "checked_in"
     
     def __repr__(self):
         return f'<Booking {self.id}: {self.guest_name} ({self.check_in} - {self.check_out})>'
