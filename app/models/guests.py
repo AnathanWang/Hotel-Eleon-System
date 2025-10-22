@@ -5,11 +5,10 @@ from sqlalchemy.orm import relationship
 
 from app import db  
 
+# класс модель гостя
+# хранение персональных данных и связи с бронированиями и посещениями
 class Guest(db.Model):
-    """
-    Модель гостя.
-    Хранит персональные данные и связи с бронированиями/посещениями.
-    """
+
     __tablename__ = "guests"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -30,7 +29,7 @@ class Guest(db.Model):
         return f"{self.last_name} {self.first_name}"
 
     def to_dict(self) -> dict:
-        # Сериализация в JSON (удобно для API)
+        # Сериализация в JSON (для API)
         return {
             "id": self.id,
             "first_name": self.first_name,
@@ -42,13 +41,11 @@ class Guest(db.Model):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-
+# класс модель визита, фаткическое проживание
+# создается при заселении и закрываеися при выселении
+# класс привязан к бронирование и номеру
 class GuestVisit(db.Model):
-    """
-    Модель визита (фактическое проживание).
-    Создаётся при заселении (check-in), закрывается при выселении (check-out).
-    Привязана к бронированию и номеру.
-    """
+
     __tablename__ = "guest_visits"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -67,10 +64,8 @@ class GuestVisit(db.Model):
     room = relationship("Room")
     service_orders = relationship("ServiceOrder", back_populates="visit", cascade="all, delete-orphan")
 
+    # пересчет итогов по услугам
     def recalc_totals(self):
-        """
-        Пересчёт итогов по услугам и total.
-        """
         self.services_amount = (db.session.query(func.coalesce(func.sum(
             db.text("quantity * unit_price")  # умножение на уровне БД
         ), 0))

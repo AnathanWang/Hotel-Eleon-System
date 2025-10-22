@@ -5,7 +5,6 @@ from config import config
 # Инициализация расширений
 db = SQLAlchemy()
 
-
 def create_app(config_name='default'):
     """Фабрика приложений Flask"""
     app = Flask(__name__)

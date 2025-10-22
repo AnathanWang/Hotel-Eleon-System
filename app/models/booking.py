@@ -1,52 +1,31 @@
-"""
-Модель бронирования
-Автор модуля: Солянов А.А.
-"""
+# Модель бронирования
+# Автор модуля: Солянов А.А.
+
 from enum import Enum
 from datetime import datetime, timezone
 from app import db
 from sqlalchemy.orm import relationship
 
-
-def utcnow():
-    """Возвращает время в UTC для БД"""
-    return datetime.now(timezone.utc)
-
-
+# класс статусов бронирования
 class BookingStatus(Enum):
-    """Статусы бронирования"""
-    PENDING = 'pending'
-    CONFIRMED = 'confirmed'
-    CHECKED_IN = 'checked_in'
-    CHECKED_OUT = 'checked_out'
-    CANCELLED = 'cancelled'
+    PENDING = ('pending', 'В ожидании')
+    CONFIRMED = ('confirmed', 'Подтверждено')
+    CHECKED_IN = ('checked_in', 'Заселен')
+    CHECKED_OUT = ('checked_out', 'Выселен')
+    CANCELLED = ('cancelled', 'Отменено')
     
-    @property
-    def code(self):
-        """Совместимость с кодом, используемым по всему проекту"""
-        return self.value
-
-    @property
-    def display_name(self):
-        """Получить отображаемое название"""
-        names = {
-            'pending': 'В ожидании',
-            'confirmed': 'Подтверждено',
-            'checked_in': 'Заселен',
-            'checked_out': 'Выселен',
-            'cancelled': 'Отменено'
-        }
-        return names.get(self.value, self.value)
+    def __init__(self, code, name):
+        self.code = code
+        self.display_name = name
 
 
 class Booking(db.Model):
-    """
-    Модель бронирования номера
     
-    Реализует принципы ООП:
-    - Инкапсуляция: управление статусами и расчетами
-    - Абстракция: представляет бронь как бизнес-объект
-    """
+    # Модель бронирования номера
+    # Реализует принципы ООП:
+    # Инкапсуляция: управление статусами и расчетами
+    # абстракция: представляет бронь как бизнес-объект
+    
     __tablename__ = 'bookings'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -84,7 +63,7 @@ class Booking(db.Model):
     
     def __init__(self, room_id, guest_name, guest_phone, check_in, check_out,
                  guest_email='', special_requests='', notes=''):
-        """Инициализация бронирования с автоматическим расчетом цены"""
+        # Инициализация бронирования с автоматическим расчетом цены
         self.room_id = room_id
         self.guest_name = guest_name
         self.guest_phone = guest_phone
@@ -99,7 +78,7 @@ class Booking(db.Model):
         self._calculate_total_price()
     
     def _calculate_total_price(self):
-        """Приватный метод для расчета общей стоимости (инкапсуляция)"""
+        # Приватный метод для расчета общей стоимости (инкапсуляция)
         nights = (self.check_out - self.check_in).days
         if nights <= 0:
             nights = 1

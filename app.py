@@ -95,7 +95,7 @@ def init_db():
     db.session.commit()
     print(f'Добавлено {len(rooms_data)} номеров')
     
-    # Создаем тестовое бронирование
+    # Создание тестовонр бронирования
     print('Добавление тестового бронирования...')
     room = Room.query.filter_by(number='101').first()
     if room:
@@ -191,7 +191,7 @@ def init_db():
     
     print('База данных инициализирована успешно!')
 
-
+# очистка бд
 @app.cli.command()
 def clear_db():
     """Очистка базы данных"""
