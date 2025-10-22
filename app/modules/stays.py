@@ -1,12 +1,13 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, abort
-from app import db  # type: ignore
+from app import db 
 from app.models.guests import Guest, GuestVisit
 from app.models.service import ServiceOrder
-from app.models.booking import Booking  # предполагаем, что модель уже есть
+from app.models.booking import Booking 
 
 stays_bp = Blueprint("stays", __name__, url_prefix="/stays")
 
+# эндпоинт заселения
 @stays_bp.post("/checkin/<int:booking_id>")
 def checkin(booking_id: int):
     """
@@ -17,6 +18,7 @@ def checkin(booking_id: int):
     """
     booking = Booking.query.get_or_404(booking_id)
 
+    # должен быть гость
     if not booking.guest_id:
         abort(400, "У бронирования не указан гость (guest_id)")
 
@@ -30,6 +32,7 @@ def checkin(booking_id: int):
     # Базовая сумма проживания (берём из брони, предполагаем наличие total_price/amount)
     base_amount = float(getattr(booking, "total_price", 0) or getattr(booking, "amount", 0) or 0)
 
+    # создание новой записи о фактическом проживании
     visit = GuestVisit(
         guest_id=booking.guest_id,
         booking_id=booking.id,
@@ -42,6 +45,7 @@ def checkin(booking_id: int):
     booking.status = "checked_in"
     db.session.commit()
 
+    # Возврат JSON-ответ с подтверждением и ключевыми данными
     return jsonify({
         "ok": True,
         "visit_id": visit.id,

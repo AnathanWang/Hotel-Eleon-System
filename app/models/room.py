@@ -7,7 +7,7 @@ from app import db
 
 
 class RoomType(Enum):
-    """Типы номеров"""
+    # Типы номеров
     STANDARD = ('standard', 'Стандарт', 3000)
     DELUXE = ('deluxe', 'Делюкс', 5000)
     SUITE = ('suite', 'Люкс', 8000)
@@ -29,14 +29,15 @@ class Room(db.Model):
     """
     __tablename__ = 'rooms'
     
+    # поля таблицы
     id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.String(10), unique=True, nullable=False, index=True)
-    room_type = db.Column(db.String(20), nullable=False)
-    floor = db.Column(db.Integer, nullable=False)
+    number = db.Column(db.String(10), unique=True, nullable=False, index=True) # Номер команты
+    room_type = db.Column(db.String(20), nullable=False) # тип номера
+    floor = db.Column(db.Integer, nullable=False) # этаж
     capacity = db.Column(db.Integer, nullable=False)  # Вместимость (человек)
-    price_per_night = db.Column(db.Float, nullable=False)
-    description = db.Column(db.Text)
-    is_available = db.Column(db.Boolean, default=True)
+    price_per_night = db.Column(db.Float, nullable=False) # прайс
+    description = db.Column(db.Text) # описание
+    is_available = db.Column(db.Boolean, default=True) # флаг доступности
     
     # Связь с бронированиями (one-to-many)
     bookings = db.relationship('Booking', backref='room', lazy='dynamic', 
@@ -82,7 +83,7 @@ class Room(db.Model):
             bool: True если номер свободен
         """
         from app.models.booking import BookingStatus
-        
+        #првоерка пересечения дат
         overlapping_bookings = self.bookings.filter(
             db.and_(
                 Booking.status.in_([BookingStatus.CONFIRMED.value, BookingStatus.CHECKED_IN.value]),

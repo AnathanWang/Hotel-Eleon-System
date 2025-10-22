@@ -1,7 +1,8 @@
 from datetime import datetime
-from app import db  # type: ignore
+from app import db  
 from sqlalchemy.orm import relationship
 
+# класс со справочником
 class Service(db.Model):
     """
     Справочник услуг (RoomService, Spa, Laundry, Transfer и т.д.)
@@ -26,7 +27,7 @@ class Service(db.Model):
             "is_active": self.is_active,
         }
 
-
+# класс с заказом услуг 
 class ServiceOrder(db.Model):
     """
     Заказ услуги в рамках визита (проживания).
