@@ -105,15 +105,15 @@
                         </td>
                         {% for day in days %}
                         {% set booking = occupancy_matrix[room.id].get(day) %}
-                        <td class="{% if booking %}day-occupied{% else %}day-free{% endif %} {% if day.weekday() >= 5 %}weekend{% endif %}"
+                        <td class="{% if booking %}day-occupied{% else %}day-free{% endif %} {% if day.weekday() >= 5 %}weekend{% endif %}">
                             {% if booking %}
-                            data-bs-toggle="tooltip" 
-                            data-bs-placement="top" 
-                            title="{{ booking.guest_name }} ({{ booking.check_in.strftime('%d.%m') }} - {{ booking.check_out.strftime('%d.%m') }})"
-                            onclick="window.location.href='{{ url_for('bookings.detail', booking_id=booking.id) }}'"
-                            {% endif %}>
-                            {% if booking %}
-                            <i class="bi bi-person-fill text-danger"></i>
+                            <a href="{{ url_for('bookings.detail', booking_id=booking.id) }}"
+                               class="btn btn-link p-0 border-0 w-100 h-100 text-decoration-none"
+                               data-bs-toggle="tooltip" 
+                               data-bs-placement="top" 
+                               title="{{ booking.guest_name }} ({{ booking.check_in.strftime('%d.%m') }} - {{ booking.check_out.strftime('%d.%m') }})">
+                                <i class="bi bi-person-fill text-danger"></i>
+                            </a>
                             {% else %}
                             <i class="bi bi-check text-success"></i>
                             {% endif %}
@@ -148,9 +148,6 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body text-center">
-                {% set total_days = rooms|length * days|length %}
-                {% set occupied_days = occupancy_matrix.values()|sum(attribute='values')|length %}
-                {% set occupancy_rate = (occupied_days / total_days * 100) if total_days > 0 else 0 %}
                 <h3 class="text-info">{{ "%.1f"|format(occupancy_rate) }}%</h3>
                 <p class="mb-0">Загруженность</p>
             </div>

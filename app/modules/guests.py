@@ -3,11 +3,11 @@
 from flask import Blueprint, request, jsonify, abort
 from sqlalchemy.exc import IntegrityError
 from app import db  # type: ignore
-from app.models.guests import Guest, GuestVisit
+from app.models.guests import Guest
 
-guests_bp = Blueprint("guests", __name__, url_prefix="/guests")
+bp = Blueprint("guests", __name__, url_prefix="/guests")
 
-@guests_bp.get("/")
+@bp.get("/")
 def list_guests():
     # Список гостей с фильтрами (поиск по имени/телефону/почте)
     q = request.args.get("q", "", type=str).strip()
@@ -26,7 +26,7 @@ def list_guests():
     items = query.order_by(Guest.created_at.desc()).limit(200).all()
     return jsonify([g.to_dict() for g in items])
 
-@guests_bp.get("/<int:guest_id>")
+@bp.get("/<int:guest_id>")
 def get_guest(guest_id: int):
     # Карточка гостя с историей визитов
     guest = Guest.query.get_or_404(guest_id)
@@ -44,7 +44,7 @@ def get_guest(guest_id: int):
     data["visits"] = visits
     return jsonify(data)
 
-@guests_bp.post("/")
+@bp.post("/")
 def create_guest():
     # Создание гостя
     data = request.get_json(force=True, silent=True) or {}
@@ -69,7 +69,7 @@ def create_guest():
 
     return jsonify(guest.to_dict()), 201
 
-@guests_bp.put("/<int:guest_id>")
+@bp.put("/<int:guest_id>")
 def update_guest(guest_id: int):
     # Редактирование гостя
     guest = Guest.query.get_or_404(guest_id)
@@ -82,7 +82,7 @@ def update_guest(guest_id: int):
     db.session.commit()
     return jsonify(guest.to_dict())
 
-@guests_bp.delete("/<int:guest_id>")
+@bp.delete("/<int:guest_id>")
 def delete_guest(guest_id: int):
     # Удаление гостя (каскадно удалит визиты и заказы услуг)
     guest = Guest.query.get_or_404(guest_id)

@@ -1,24 +1,24 @@
 # Быстрый старт Hotel Eleon System
 
-## Шаги для запуска:
+## Шаги для запуска
 
 1. **Установить зависимости:**
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 2. **Инициализировать базу данных:**
    ```bash
-   flask init-db
+   python3 init_db.py
    ```
 
 3. **Запустить приложение:**
    ```bash
-   python app.py
+   python3 app.py
    ```
 
 4. **Открыть в браузере:**
-   http://127.0.0.1:5000
+   <http://127.0.0.1:5000>
 
 ## Тестовые данные
 

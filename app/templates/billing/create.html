@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Создать счёт - Hotel Eleon{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Создать счёт</h2>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <form method="post">
+                {% if booking %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    Создание счёта для бронирования #{{ booking.id }} ({{ booking.guest_name }})
+                </div>
+                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                <input type="hidden" name="guest_name" value="{{ booking.guest_name }}">
+                <input type="hidden" name="guest_contact" value="{{ booking.guest_phone }}">
+                {% else %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Имя гостя *</label>
+                        <input type="text" name="guest_name" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Контакт гостя *</label>
+                        <input type="text" name="guest_contact" class="form-control" required>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Создаёт сотрудник *</label>
+                        <select name="created_by_id" class="form-select" required>
+                            {% for staff in staff_list %}
+                            <option value="{{ staff.id }}">{{ staff.full_name() }} ({{ staff.get_role_display() }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if not booking %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Бронирование (опционально)</label>
+                        <input type="number" name="booking_id" class="form-control" placeholder="ID бронирования">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Примечания</label>
+                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    После создания счёта вы сможете добавить позиции и платежи.
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Создать счёт
+                </button>
+                <a href="{{ url_for('billing.index') }}" class="btn btn-secondary">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

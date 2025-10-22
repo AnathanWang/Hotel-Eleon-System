@@ -3,15 +3,15 @@ from app import db  # type: ignore
 from app.models.service import Service, ServiceOrder
 from app.models.guests import GuestVisit
 
-services_bp = Blueprint("services", __name__, url_prefix="/services")
+bp = Blueprint("services", __name__, url_prefix="/services")
 
-@services_bp.get("/")
+@bp.get("/")
 def list_services():
     # Прайс услуг (активные)
     items = Service.query.filter_by(is_active=True).order_by(Service.title.asc()).all()
     return jsonify([s.to_dict() for s in items])
 
-@services_bp.post("/")
+@bp.post("/")
 def create_service():
     # Создание/редактирование справочника услуг (админка на будущее)
     data = request.get_json(force=True, silent=True) or {}
@@ -27,7 +27,7 @@ def create_service():
     db.session.commit()
     return jsonify(svc.to_dict()), 201
 
-@services_bp.post("/orders")
+@bp.post("/orders")
 def create_service_order():
     # Создание заказа услуги на визит
     data = request.get_json(force=True, silent=True) or {}
@@ -63,7 +63,7 @@ def create_service_order():
         "subtotal": order.subtotal(),
     }), 201
 
-@services_bp.post("/orders/<int:order_id>/complete")
+@bp.post("/orders/<int:order_id>/complete")
 def complete_service_order(order_id: int):
     # Закрыть заказ (выполнено)
     order = ServiceOrder.query.get_or_404(order_id)
@@ -76,7 +76,7 @@ def complete_service_order(order_id: int):
 
     return jsonify({"ok": True, "subtotal": order.subtotal()})
 
-@services_bp.post("/orders/<int:order_id>/cancel")
+@bp.post("/orders/<int:order_id>/cancel")
 def cancel_service_order(order_id: int):
     # Отмена заказа (если ещё не выполнен)
     order = ServiceOrder.query.get_or_404(order_id)

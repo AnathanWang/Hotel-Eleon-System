@@ -9,10 +9,9 @@
         <div class="card bg-primary text-white">
             <div class="card-body text-center py-5">
                 <h1 class="display-4">
-                    <i class="bi bi-building"></i> Hotel Eleon System
+                    <i class="bi bi-building"></i> Hotel Eleon
                 </h1>
                 <p class="lead mb-0">Система управления отелем</p>
-                <p class="mb-0">Модуль номеров и бронирования (Солянов А.А.)</p>
             </div>
         </div>
     </div>
@@ -102,6 +101,34 @@
                 </h5>
                 <p class="card-text">Просмотр и редактирование номерного фонда</p>
                 <a href="{{ url_for('rooms.index') }}" class="btn btn-info">
+                    <i class="bi bi-arrow-right"></i> Перейти
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-people text-warning"></i> Персонал
+                </h5>
+                <p class="card-text">Управление сотрудниками и отчёты менеджеров</p>
+                <a href="{{ url_for('staff.index') }}" class="btn btn-warning">
+                    <i class="bi bi-arrow-right"></i> Перейти
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-receipt text-danger"></i> Счета и платежи
+                </h5>
+                <p class="card-text">Ведение счетов и приём платежей от гостей</p>
+                <a href="{{ url_for('billing.index') }}" class="btn btn-danger">
                     <i class="bi bi-arrow-right"></i> Перейти
                 </a>
             </div>

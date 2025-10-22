@@ -3,6 +3,7 @@
 Автор модуля: Солянов А.А.
 """
 from enum import Enum
+
 from app import db
 
 
@@ -86,7 +87,7 @@ class Room(db.Model):
         #првоерка пересечения дат
         overlapping_bookings = self.bookings.filter(
             db.and_(
-                Booking.status.in_([BookingStatus.CONFIRMED.value, BookingStatus.CHECKED_IN.value]),
+                Booking.status.in_([BookingStatus.CONFIRMED.code, BookingStatus.CHECKED_IN.code]),
                 db.or_(
                     db.and_(Booking.check_in <= check_in, Booking.check_out > check_in),
                     db.and_(Booking.check_in < check_out, Booking.check_out >= check_out),
